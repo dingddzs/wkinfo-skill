@@ -417,3 +417,35 @@ git push origin main  # 可选
 
 ---
 
+
+## 14. sync.py 双向同步（v1.5+）
+
+**问题**：项目文件夹（开发版）和 `~/.claude/skills/...`（Claude 实际加载）有结构差异：
+- 项目：`脚本和代码/`、`references/`、`SKILL.md`
+- skill 安装：`scripts/`、`references/`、`SKILL.md`
+
+手动 cp 容易漏，且 e1e0949（v1.4.0）就漏了。
+
+**解决**：`scripts/sync.py` 双向同步 + hash 对比。
+
+### 用法
+```bash
+python scripts/sync.py             # 项目 -> skill（默认 push）
+python scripts/sync.py --pull      # skill -> 项目
+python scripts/sync.py --check     # 只比较不复制
+```
+
+### 硬排除（不会被 sync 过去）
+- `.git/`、`__pycache__/`（运行时产物）
+- `临时资源/`（含 Edge profile 1.4GB + 截图 + 调试日志）
+- `原始文件/`、`处理后文件/`（用户数据）
+- 项目独有：`PROJECT_GUIDE.md`、`CHANGELOG.md`、`开发日志.md`、`README.md`、`.gitignore`、`.gitattributes`
+
+### 何时跑
+- **每次 commit 前**：确保 skill 安装位置同步了最新代码
+- **克隆项目到新机器时**：clone → 跑 sync → 装依赖 → 跑验收
+- **修了代码后忘了 commit**：先 commit 再 sync
+
+### 不在 sync 范围
+- Skill install 位置独有的动态加载文件（如有）
+- 临时资源 / 用户数据（设计原则：永远不离开用户机器）

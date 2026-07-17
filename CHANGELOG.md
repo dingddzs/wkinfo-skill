@@ -6,6 +6,29 @@
 
 ---
 
+## v1.5.0 — 2026-07-18 — 同步机制 + 3 用户提示整合
+
+**新增**：
+- `scripts/sync.py` — 双向同步项目 ↔ skill 安装位置（hash 对比，硬排除 `临时资源/原始文件/处理后文件/__pycache__/.git`）
+- `scripts/research.py --mode iterative` — **"往返于事实与规范之间"** 迭代检索
+  - Round 0：5 库并行搜
+  - Round 1+：从结果中正则抽 `《XX法》` 当锚点，再搜 case/commentary/focus
+  - 收敛：发现 0 个新法条即停
+  - 输出带每轮发现的法条列表
+
+**改动**：
+- `scripts/research.py` 输出每条 items 加 `url`（详情页直达链接）+ `cited_laws`（去 HTML 后的法条名）+ `cited_articles`（具体条款如"第二百一十六条第四项"）
+- `references/retrieval-tips.md` Section D 加 tip："下载格式默认 PDF，仅批量筛选时用 xls"
+- 修复 v1.4.0 commit e1e0949 漏同步到 skill 安装位置的问题（v1.5.0 起每次 commit 跑 `sync.py`）
+
+**关键决策**（用户 2026-07-18 指示）：
+- ❌ 不爬法条全文（不调 HTML 端点）
+- ✅ 引用到的条文要**一字不漏**写在报告里（regex 提取 + 详情页 URL 给用户验证）
+
+**对应提交**：本次 commit（v1.5.0）
+
+---
+
 ## v1.4.0 — 2026-07-17 — 检索经验累积机制
 
 **新增**：
