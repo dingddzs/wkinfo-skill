@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.coverage
+.tox/
+
+# 临时资源（全部排除：含 Edge profile 1.4GB、截图、调试日志、网络捕获、OCR 缓存等）
+临时资源/
+
+# 用户产出文件（不能进版本控制）
+原始文件/
+处理后文件/
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 环境变量 / 凭据
+.env
+.env.local
+*.pem
+*.key
+
+# 日志
+*.log
+
+# 临时文件
+/tmp/
+*.tmp

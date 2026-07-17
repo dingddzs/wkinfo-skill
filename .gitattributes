@@ -1,0 +1,16 @@
+# 强制使用 LF 行尾（避免 Windows/Linux 协作时冲突）
+# Python 脚本和 Markdown 文档：LF
+*.py     text eol=lf
+*.md     text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# 显式标记为二进制（避免误解析）
+*.png    binary
+*.jpg    binary
+*.pdf    binary
+*.xls    binary
+*.xlsx   binary
+*.doc    binary
+*.docx   binary
