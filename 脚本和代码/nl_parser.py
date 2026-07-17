@@ -119,6 +119,71 @@ class CaseCauseDict:
                     for sub in cause["sub_causes"]:
                         self._add_to_index(sub["name"], part, cat, cause, sub, score=1.0)
 
+        # 加载用户自定义案由同义词（可选，文件不存在则优雅跳过）
+        self._load_user_synonyms()
+
+    def _load_user_synonyms(self):
+        """从 references/extra-synonyms.json 加载用户累积的案由同义词
+
+        支持两种格式：
+          简单：{"实际施工人": "建设工程施工合同纠纷"}
+                （值若为 sub_cause 名，自动索引到其父 cause）
+          复杂：{"实际施工人": {"cause": "...", "sub_cause": "...", "score": 0.95}}
+                （cause+sub_cause 双定位，精度更高）
+
+        文件不存在或格式错误时优雅降级，不影响主流程。
+        """
+        user_path = Path(__file__).parent.parent / "references" / "extra-synonyms.json"
+        if not user_path.exists():
+            return
+        try:
+            with open(user_path, "r", encoding="utf-8") as f:
+                user_data = json.load(f)
+            # 先扁平化所有 cause/sub_cause 节点，便于查找
+            all_causes = []    # [(part, cat, cause, None), ...]
+            all_subs = []      # [(part, cat, cause, sub), ...]
+            for part in self.parts:
+                for cat in part["categories"]:
+                    for cause in cat["causes"]:
+                        all_causes.append((part, cat, cause, None))
+                        for sub in cause.get("sub_causes", []):
+                            all_subs.append((part, cat, cause, sub))
+
+            for kw, target in user_data.items():
+                if isinstance(target, str):
+                    cname, sname, sc = target, None, 0.95
+                else:
+                    cname = target.get("cause", "")
+                    sname = target.get("sub_cause")
+                    sc = target.get("score", 0.95)
+                if not cname:
+                    continue
+                injected = False
+                if sname:
+                    # 双定位：cause 名 + sub_cause 名
+                    for part, cat, cause, sub in all_subs:
+                        if cause["name"] == cname and sub["name"] == sname:
+                            self._add_to_index(kw, part, cat, cause, sub, score=sc)
+                            injected = True
+                            break
+                else:
+                    # 单定位：先找 sub_cause（更具体），再找 cause
+                    for part, cat, cause, sub in all_subs:
+                        if sub["name"] == cname:
+                            self._add_to_index(kw, part, cat, cause, sub, score=sc)
+                            injected = True
+                            break
+                    if not injected:
+                        for part, cat, cause, _ in all_causes:
+                            if cause["name"] == cname:
+                                self._add_to_index(kw, part, cat, cause, None, score=sc)
+                                injected = True
+                                break
+                if not injected:
+                    print(f"[!] extra-synonyms: 关键词 \"{kw}\" 指向 \"{cname}\" 未在案由词典中找到")
+        except Exception as e:
+            print(f"[!] extra-synonyms.json 加载失败（已跳过）: {e}")
+
     def _add_to_index(self, keyword, part, cat, cause, sub, score):
         if not keyword:
             return

@@ -6,6 +6,31 @@
 
 ---
 
+## v1.4.0 — 2026-07-17 — 检索经验累积机制
+
+**新增**：
+- `references/retrieval-tips.md` — 4 段分类（query 增强 / filter 维度 / 案由别名 / 反模式），累积用户口头补充的检索经验，下次调用 skill 时 agent 自动 Read 应用
+- `scripts/nl_parser.py` 新增 `_load_user_synonyms()` 方法 — 可选加载 `references/extra-synonyms.json`，把高频案由别名固化到倒排索引（文件不存在时优雅跳过，JSON 损坏时打印警告不中断主流程）
+
+**改动**：
+- `SKILL.md` — 核心流程图插入 step 1.5 "Load retrieval-tips.md"；末尾新增"经验维护"小节（追加时机、升级时机、review 节奏）
+- `SKILL.md` metadata.version: 1.3.0 → 1.4.0
+
+**影响**：
+- 用户口头补充检索要点 → agent 自动 append 到 tips 文件，下次调用自动应用
+- Section C 案由别名出现 ≥2 次 → 升级到 `extra-synonyms.json`（代码层，零 token 成本）
+
+**已累积 tip（截至 2026-07-17）**：
+- A: 医疗期解除 + "另行安排工作" 召回率↑
+- A: 虚假病假 + "严重违反规章制度" 组合命中率高
+- B: 默认 `+typeOfDecisionCode:((001))` 限定判决书
+- D: 撤诉/驳回类裁定默认排除
+- D: 单纯搜"病假"会混入普通工资纠纷案
+
+**对应提交**：本次提交
+
+---
+
 ## v1.3.0 — 2026-07-17 — 五库并行研究工作流
 
 **新增**：

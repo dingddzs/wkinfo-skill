@@ -30,11 +30,14 @@ description: |
   - 框架可扩展：往 LIBRARIES 字典加一项即可接入新库
 
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
   author: 数字生命卡兹克 + Claude
   created: 2026-07-16
   updated: 2026-07-17
   changelog: |
+    v1.4 - 新增 references/retrieval-tips.md：4 段分类累积用户检索经验（query 增强 / filter 维度 / 案由别名 / 反模式）
+           新增 scripts/nl_parser.py _load_user_synonyms() 方法：可选加载 references/extra-synonyms.json
+           SKILL.md 核心流程图插入 step 1.5 "Load retrieval-tips.md"，末尾新增"经验维护"小节
     v1.3 - 加实务指南库（/commentary/list，indexId=law.commentaryB）和专题聚焦库（/focus/list，indexId=law.specialTopic）
            新增 research.py：跨 5 库并行搜索，输出结构化信源汇总
            触发词扩展：覆盖"调研XX"、"研究XX"等研究性场景
@@ -71,6 +74,12 @@ metadata:
 
 ```
 用户自然语言查询
+    ↓
+[agent] step 1.5：Load references/retrieval-tips.md
+        ├─ Section A：改写 --query 参数（query 增强）
+        ├─ Section B：拼接 --filter-queries 参数（filter 维度）
+        ├─ Section D：避开反模式组合
+        └─ Section C：暂不应用（待升级到代码层）
     ↓
 [nl_parser.py] 抽取结构化参数（案由、时间、法院、审级、文书类型）
     ↓
@@ -203,6 +212,24 @@ python scripts/install_cookies.py --wait-login
 3. **PDF 标黄**依赖 pypdf 5.0+，已处理兼容性问题
 4. **Wkinco 限频**：大量下载时需加 time.sleep，目前未内置
 5. **中文 skill 命名**：与 skill-manager 兼容性未验证；如未来用 skill-manager 跟踪，可能需要改成 kebab-case
+
+---
+
+## 经验维护（tips 累积机制）
+
+本 skill 通过 `references/retrieval-tips.md` 累积用户使用过程中的检索经验。每次调用 skill 前 agent 会自动 Read 该文件，应用 Section A 改写 query、Section B 拼接 filter、Section D 避开反模式。
+
+### 何时追加 tip
+- 用户口头补充具体经验（如"医疗期解除要加'另行安排工作'"）→ agent 自动 append 到对应段并回读确认
+
+### 何时升级到代码层
+- Section C 同 tip 出现 ≥2 次
+- 或用户明示"以后都这样"、"记住这个"
+→ agent 提示确认后，修改 `references/extra-synonyms.json`（新建）或 `民事案由_2025.json` 的 aliases 字段
+
+### Review 节奏
+- 每月 1 次 review Section D 反模式是否需要进 SKILL.md"已知限制"
+- 不做自动批量升级，避免误升级导致回归
 
 ---
 
