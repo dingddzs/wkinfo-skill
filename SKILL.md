@@ -30,11 +30,17 @@ description: |
   - 框架可扩展：往 LIBRARIES 字典加一项即可接入新库
 
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
   author: 数字生命卡兹克 + Claude
   created: 2026-07-16
-  updated: 2026-07-17
+  updated: 2026-07-18
   changelog: |
+    v1.5 - 新增 scripts/sync.py：双向同步项目↔skill 安装位置（hash 对比，硬排除临时资源/原始文件/处理后文件）
+           新增 research.py --mode iterative：往返事实/规范迭代检索（法条抽取作锚点）
+           research.py 输出 items 加 url / cited_laws / cited_articles 字段（条文一字不漏 + 详情页链接）
+           references/retrieval-tips.md 加 tip：下载格式默认 PDF（仅批量筛选时用 xls）
+           PROJECT_GUIDE.md 新增第 14 节：sync.py 工作流
+           修复 v1.4 漏同步到 skill 安装位置
     v1.4 - 新增 references/retrieval-tips.md：4 段分类累积用户检索经验（query 增强 / filter 维度 / 案由别名 / 反模式）
            新增 scripts/nl_parser.py _load_user_synonyms() 方法：可选加载 references/extra-synonyms.json
            SKILL.md 核心流程图插入 step 1.5 "Load retrieval-tips.md"，末尾新增"经验维护"小节
