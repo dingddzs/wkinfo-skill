@@ -269,3 +269,4 @@ client.download_file(
 - **wkinfo-cli**: 共享 cookies，提供 `/csi/legislation/` 等法规检索
 - **case-retrieval**: 接收本 skill 输出的 Excel，做 AI 分析 + 出报告
 - **case-search**: 裁判文书网 / 人民法院案例库搜索（不同数据库）
+
