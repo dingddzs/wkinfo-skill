@@ -20,6 +20,7 @@
     处理后文件/*.json    ->  *.json          （案由词典等）
 """
 import argparse
+import filecmp
 import hashlib
 import shutil
 import sys
@@ -73,17 +74,26 @@ SKILL_ONLY = {
 
 
 def is_excluded(rel: Path) -> bool:
-    """统一排除规则：硬排除 + 名称级跳过"""
+    """统一排除规则：硬排除 + 名称级跳过（递归检查所有父目录）"""
     parts = rel.parts
     if not parts:
         return True
-    # 顶层目录硬排除
-    if parts[0] in HARD_EXCLUDE_TOPDIRS:
-        return True
+    # 递归：路径任何一段是排除目录，就跳过
+    for p in parts:
+        if p in HARD_EXCLUDE_TOPDIRS:
+            return True
     # 名称级跳过
     if rel.name in SKIP_FROM_SYNC:
         return True
     return False
+
+
+def files_equal(p1: Path, p2: Path) -> bool:
+    """比较两个文件内容是否完全相同（用 filecmp，效率高且能比较整个文件）"""
+    try:
+        return filecmp.cmp(str(p1), str(p2), shallow=False)
+    except Exception:
+        return False
 
 
 def sha256_short(path: Path) -> str:
@@ -167,7 +177,7 @@ def sync_push(dry_run: bool = False):
                 skill_path.parent.mkdir(parents=True, exist_ok=True)
 
         if skill_path.exists():
-            if sha256_short(p) == sha256_short(skill_path):
+            if files_equal(p, skill_path):
                 continue  # 一致，跳过
 
         if dry_run:
@@ -204,7 +214,7 @@ def sync_pull(dry_run: bool = False):
                 proj_path.parent.mkdir(parents=True, exist_ok=True)
 
         if proj_path.exists():
-            if sha256_short(p) == sha256_short(proj_path):
+            if files_equal(p, proj_path):
                 continue
 
         if dry_run:
