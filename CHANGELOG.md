@@ -170,3 +170,25 @@ chore: 更新 .gitignore
 5. 更新 `PROJECT_GUIDE.md`（如果改了架构）
 6. `git add -A && git commit -m "feat: ..."`
 7. （可选）`git push origin main`
+
+---
+
+## v1.5.1 — 2026-07-20 — 自动同步钩子
+
+**新增**：
+- `scripts/hooks/post-commit` — Git hook，commit 后自动跑 sync.py
+- `scripts/install_hooks.py` — 一键安装/卸载钩子
+
+**修复**：
+- `scripts/sync.py` 用 `filecmp.cmp` 替代 `sha256_short`，**修大文件结尾改动漏同步的 bug**
+
+**GitHub**：
+- 仓库创建：https://github.com/dingddzs/wkinfo-skill
+- 推送所有 commit（v1.3.0 → v1.5.1）
+
+**用户工作流**（commit → 推送 → 一切自动）：
+```bash
+git add -A
+git commit -m "feat: xxx"   # ← post-commit 钩子自动 sync.py → skill 安装
+git push origin master      # ← 推送到 GitHub
+```

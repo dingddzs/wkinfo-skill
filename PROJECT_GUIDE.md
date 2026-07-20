@@ -450,3 +450,57 @@ python scripts/sync.py --check     # 只比较不复制
 - Skill install 位置独有的动态加载文件（如有）
 - 临时资源 / 用户数据（设计原则：永远不离开用户机器）
 
+
+## 15. GitHub 管理 + 自动同步（v1.5.1）
+
+**仓库**：https://github.com/dingddzs/wkinfo-skill （私有）
+
+**完整工作流**（3 步搞定一切）：
+
+```bash
+# 1. 改代码
+python scripts/research.py --query "公司法" --mode detail  # 验证 OK
+echo "" >> SKILL.md                                        # 改代码
+
+# 2. 提交（post-commit 钩子自动同步到 ~/.claude/skills/）
+git add -A
+git commit -m "feat: xxx"
+# → 终端会输出 [post-commit-hook] auto-synced N file(s)
+
+# 3. 推送到 GitHub
+git push origin master
+```
+
+**首次在另一台机器上 clone**：
+```bash
+git clone https://github.com/dingddzs/wkinfo-skill.git
+cd wkinfo-skill
+# 改名：项目文件夹是 "威科案例检索和下载-20260716"，clone 后是 "wkinfo-skill"
+mv wkinfo-skill 威科案例检索和下载-20260716
+# 装钩子
+python 脚本和代码/install_hooks.py
+# 装依赖
+pip install playwright requests
+```
+
+**钩子行为**（`scripts/hooks/post-commit`）：
+- 每次 commit 后自动跑 `sync.py`（项目→skill 安装）
+- 跳过 sync 自身/hook 改动（避免无限循环）
+- 支持 `SKIP_AUTO_SYNC=1` 手动跳过
+- 终端输出 `[post-commit-hook] auto-synced N file(s): ...`
+
+**何时手动跑 sync**（不走钩子）：
+- `python 脚本和代码/sync.py --pull` — 从 skill 反向同步到项目
+- `python 脚本和代码/sync.py --check` — 只看差异不写
+- `SKIP_AUTO_SYNC=1 git commit -m "x"` — 临时跳过钩子
+
+**远程 URL 设置**（已配）：
+- 仓库：https://github.com/dingddzs/wkinfo-skill
+- 协议：HTTPS（gh CLI 默认）
+- 凭证：gh CLI keyring 缓存的 token
+
+**未来扩展**（可选）：
+- GitHub Actions：在 push 时跑 lint/测试/自动发版
+- pre-commit 钩子：跑单元测试
+- changelog 自动生成
+
