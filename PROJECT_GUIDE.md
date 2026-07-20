@@ -449,3 +449,4 @@ python scripts/sync.py --check     # 只比较不复制
 ### 不在 sync 范围
 - Skill install 位置独有的动态加载文件（如有）
 - 临时资源 / 用户数据（设计原则：永远不离开用户机器）
+
