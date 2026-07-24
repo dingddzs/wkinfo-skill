@@ -192,3 +192,24 @@ git add -A
 git commit -m "feat: xxx"   # ← post-commit 钩子自动 sync.py → skill 安装
 git push origin master      # ← 推送到 GitHub
 ```
+
+---
+
+## v1.5.2 — 2026-07-20 — 跨平台 + INSTALL.md
+
+**新增**：
+- `INSTALL.md` — 跨平台安装指南（Windows / macOS / Linux）
+- `scripts/install_cookies.py` 重写跨平台：
+  - 新增 `--browser` 参数（auto / edge / chrome / chromium）
+  - `DEFAULT_BROWSER_PATHS` 按平台（win32 / darwin / linux）
+  - 启动用 `subprocess.Popen`（不再依赖 PowerShell `Start-Process`）
+  - `kill_browsers` 跨平台（Windows taskkill / Linux pkill -9 / macOS pkill）
+  - 缺 chrome/edge 时 fallback 到 Playwright 自带 chromium
+
+**修复**：
+- 漏 `import platform` 导致的 NameError
+
+**GitHub**：
+- 推送 v1.5.2 到 master
+- 仓库已可被朋友一键 clone + 安装
+
