@@ -4,10 +4,26 @@
 
 ---
 
+## ⚠️ 安全警告（必读）
+
+**每个用户必须自己登录一次威科，保存自己的 cookie。绝对不要从别人那里拿 cookie 复制到本机！**
+
+**原因**：
+1. Cookie 跟登录账号绑定——A 用户的 cookie 在 B 机器上用会失效
+2. Cookie 是身份凭证——共享 cookie 等于把账号交出去
+3. 威科 cookie 大约 1 天过期，**必须支持每用户自刷新**（所以有 login 脚本）
+
+**正确流程**：
+- ✅ 自己跑 `python login_wkinfo.py` → 手动登录 → 自动保存到 `~/.claude/skills/wkinfo-cli/storage/`
+- ❌ 不要从朋友那里要 cookies.json
+- ❌ 不要把 cookies.json 提交到 git（已在 `.gitignore` 排除）
+
+---
+
 ## 0. 仓库地址
 
 - **GitHub**：https://github.com/dingddzs/wkinfo-skill
-- **版本**：v1.5.1（5 库 + 自动同步钩子）
+- **版本**：v1.5.2（5 库 + 自动同步钩子 + 跨平台 + 登录脚本）
 
 ## 1. 系统要求
 
@@ -46,17 +62,27 @@ playwright install chromium
 - `playwright install chromium` 必须跑（下载约 200MB 浏览器）
 - macOS 上 `playwright install` 会自动选 macOS 平台
 
-### 2.3 装 wkinfo-cli skill（共享 cookie 源）
+### 2.3 首次登录威科（⚠️ 必须用自己的账号）
 
 ```bash
-mkdir -p ~/.claude/skills/wkinfo-cli/storage
-# 把你的 wkinfo-cookies.json 放到这个目录
-# （先在已登录威科的机器上跑 install_cookies.py --wait-login 自动捕获）
+# Windows / macOS / Linux 都一样：
+python 脚本和代码/login_wkinfo.py
 ```
 
-如果你没有现成的 cookies.json：
-- 找已有 cookie 的同事要一份
-- 或者自己手动登录威科，按 F12 抓 cookies 写 JSON
+这个脚本会：
+1. 启动隔离 profile 的浏览器（不影响你主浏览器）
+2. 打开威科首页
+3. **你在弹出的浏览器里手动登录**（用自己的威科账号）
+4. 登录成功后自动捕获 cookie 并保存到：
+   ```
+   ~/.claude/skills/wkinfo-cli/storage/wkinfo-cookies.json
+   ```
+5. cookie 大约 1 天过期，过期时再跑一次这个脚本重新登录
+
+**绝对不要**：
+- ❌ 把你的 cookies.json 发给朋友
+- ❌ 把朋友的 cookies.json 复制到你机器上
+- ❌ 把 cookies.json 提交到 git（已在 `.gitignore` 排除）
 
 ### 2.4 装 Git 钩子（自动同步到 skill 安装位置）
 
@@ -197,24 +223,39 @@ cd 威科案例检索和下载-20260716
 pip install playwright requests pypdf
 playwright install chromium
 
-# 3. 装 wkinfo-cli skill 的 cookies（需已有 cookies.json）
+# 3. 装 wkinfo-cli skill 的 cookie 目录
 mkdir -p ~/.claude/skills/wkinfo-cli/storage
-# 复制你的 cookies.json 到 ~/.claude/skills/wkinfo-cli/storage/
 
-# 4. 装 Git 钩子
+# 4. ⚠️ 自己登录威科（不要复制别人的 cookie！）
+python 脚本和代码/login_wkinfo.py
+#   浏览器弹出 → 用你的威科账号登录 → 自动保存 cookie
+#   cookie 大约 1 天过期，过期再跑一次
+
+# 5. 装 Git 钩子
 python 脚本和代码/install_hooks.py
-
-# 5. 注入 cookie（如果 cookies 已过期，会引导手动登录）
-python 脚本和代码/install_cookies.py --wait-login
 
 # 6. 验证
 python 脚本和代码/install_cookies.py --verify
+# → 应该输出 [OK] 已登录 (jtnfawkwechat)
 python 脚本和代码/research.py --query "公司" --mode summary
+# → 5 库都有命中
 
 # 7. 以后改代码，自动同步
 # 直接：git add -A && git commit -m "xxx"
 # 钩子会：项目→~/.claude/skills/... 自动同步
 # 然后：git push origin master（推 GitHub）
+```
+
+## 8. cookie 过期了怎么办
+
+威科 cookie 大约 **1 天**过期。到期症状：
+- `install_cookies.py --verify` 输出 `[X] 未登录`
+- 搜索返回 score 都是 0
+
+修复（不要复制朋友的 cookie）：
+```bash
+python 脚本和代码/login_wkinfo.py
+# 浏览器弹出 → 用你的账号重新登录
 ```
 
 ## 8. 不需要知道的事

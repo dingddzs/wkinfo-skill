@@ -19,6 +19,13 @@ build/
 原始文件/
 处理后文件/
 
+# 安全：cookie / 凭证（绝对不能进 git，per-user 专属）
+*cookie*.json
+*credentials*
+*.cookie
+.cookies
+wkinfo-cookies.json
+
 # 系统
 .DS_Store
 Thumbs.db
