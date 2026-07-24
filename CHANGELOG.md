@@ -213,3 +213,20 @@ git push origin master      # ← 推送到 GitHub
 - 推送 v1.5.2 到 master
 - 仓库已可被朋友一键 clone + 安装
 
+
+---
+
+## v1.5.3 — 2026-07-20 — 安全修复：每用户自登录
+
+⚠️ 重要：每个用户必须自己登录威科，cookie 跟账号绑定，**绝对不要从别人那里拿 cookies.json**。
+
+**新增**：
+- `scripts/login_wkinfo.py` — 专用登录脚本（每用户自跑）
+
+**改动**：
+- `INSTALL.md` 顶部加"安全警告"段
+- 第 2.3 步、第 7 步清单、第 8 节都改为"自己跑 login_wkinfo.py"
+- `.gitignore` 加防御性 cookie 排除（`*cookie*.json`、`wkinfo-cookies.json` 等）
+
+**GitHub**：推送 v1.5.3
+
