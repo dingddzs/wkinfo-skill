@@ -230,3 +230,15 @@ git push origin master      # ← 推送到 GitHub
 
 **GitHub**：推送 v1.5.3
 
+
+---
+
+## v1.5.4 — 2026-07-20 — agent 自动引导安装
+
+**新增**：
+- `scripts/bootstrap.py` — agent 用的一键引导（自动装依赖 + 引导用户登录）
+- SKILL.md 加"首次安装"触发词 + 自动初始化流程
+- AI_INTERVENTION_GUIDE.md 第 14 节：agent 自动安装工作流
+
+**用户价值**：朋友的智能体 clone 后自动接手所有安装，唯一需要用户亲手做的：在弹出的浏览器里输入威科账号密码。
+
